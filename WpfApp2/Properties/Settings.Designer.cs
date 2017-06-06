@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TxGuruDigitalSignatures.Properties {
+namespace DigitalSignatures.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

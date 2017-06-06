@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp2"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="Digital Signatures" Height="350" Width="625">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="30*"/>
@@ -13,23 +13,25 @@
             <ColumnDefinition Width="117*"/>
             <ColumnDefinition Width="370*"/>
         </Grid.ColumnDefinitions>
-        <Button  Content="Click to select file" HorizontalAlignment="Left" Margin="48,184,0,0" VerticalAlignment="Top" Width="294" Click="Button_Click" Grid.Column="3" Height="22"/>
-        <ComboBox Name="certificateStore" HorizontalAlignment="Left" Margin="48,72,0,0" VerticalAlignment="Top" Width="294" Grid.Column="3" Height="22" SelectionChanged="CertificateChanged">
+        <Button  Content="Click to select file" HorizontalAlignment="Left" Margin="24,214,0,0" VerticalAlignment="Top" Width="379" Click="chooseFile" Grid.Column="3" Height="23"/>
+        <ComboBox Name="certificateStore" HorizontalAlignment="Left" Margin="24,72,0,0" VerticalAlignment="Top" Width="379" Grid.Column="3" Height="19" SelectionChanged="CertificateChanged">
         </ComboBox>
-        <TextBlock HorizontalAlignment="Left" Margin="6,28,0,0" TextWrapping="Wrap" Text="The signature will be saved in a file in the same folder with the extension .sign and the associated digital certificate, if available, with the extension .crt" VerticalAlignment="Top" Height="38" Width="439" Grid.ColumnSpan="2" Grid.Column="2"/>
-        <Button Name="saveSignatureButton" Content="Generate and save signature" Grid.Column="2" HorizontalAlignment="Left" Margin="6,247,0,0" VerticalAlignment="Top" Width="204" Grid.ColumnSpan="2" Height="26" Click="Button_Click_1" IsEnabled="False"/>
-        <Button Name="saveCertificateButton" Content="Extract Digital Certificate" Grid.Column="3" HorizontalAlignment="Left" Margin="138,247,0,0" VerticalAlignment="Top" Width="204" Height="26" Click="Button_Click_2" IsEnabled="False"/>
-        <Label Name="IDLabel" Content="Common Name:" Grid.Column="3" HorizontalAlignment="Left" Margin="48,91,0,0" VerticalAlignment="Top"/>
-        <Label Content="Issuer:" Grid.Column="3" HorizontalAlignment="Left" Margin="48,111,0,0" VerticalAlignment="Top"/>
-        <Label Content="Expiry:" Grid.Column="3" HorizontalAlignment="Left" Margin="48,129,0,0" VerticalAlignment="Top"/>
-        <Label Name="selectedCertificateCommonName" Content="(select certificate)" Grid.Column="3" HorizontalAlignment="Left" Margin="168,91,0,0" VerticalAlignment="Top" Width="174"/>
-        <Label Name="selectedCertificateExpiry" Content="(select certificate)" Grid.Column="3" HorizontalAlignment="Left" Margin="168,129,0,0" VerticalAlignment="Top" Width="174"/>
-        <Label Name="selectedCertificateIssuer" Content="(select certificate)" Grid.Column="3" HorizontalAlignment="Left" Margin="168,111,0,0" VerticalAlignment="Top" Width="174"/>
+        <TextBlock HorizontalAlignment="Left" Margin="6,10,0,0" TextWrapping="Wrap" Text="This utility generates digital signatures and extracts X509 certificates. It can connect to certificate stores and smartcards/USB tokens that register their drivers with Windows. " VerticalAlignment="Top" Height="56" Width="537" Grid.ColumnSpan="2" Grid.Column="2"/>
+        <Button Name="saveSignatureButton" Content="Generate and save signature" Grid.Column="2" HorizontalAlignment="Left" Margin="6,274,0,0" VerticalAlignment="Top" Width="204" Grid.ColumnSpan="2" Height="26" Click="saveSignature" IsEnabled="False"/>
+        <Button Name="saveCertificateButton" Content="Extract Digital Certificate" Grid.Column="3" HorizontalAlignment="Left" Margin="199,274,0,0" VerticalAlignment="Top" Width="204" Height="26" Click="saveCertificate" IsEnabled="False"/>
+        <Label Name="IDLabel" Content="" Grid.Column="3" HorizontalAlignment="Left" Margin="24,91,0,0" VerticalAlignment="Top" Width="104"/>
+        <Label Name="selectedCertificateIssuer_Id" Content="" Grid.Column="3" HorizontalAlignment="Left" Margin="24,109,0,0" VerticalAlignment="Top" Width="46"/>
+        <Label Name="selectedCertificateExpiry_Id" Content="" Grid.Column="3" HorizontalAlignment="Left" Margin="24,128,0,0" VerticalAlignment="Top" Width="47"/>
+        <Label Name="selectedCertificateCommonName" Content="" Grid.Column="3" HorizontalAlignment="Left" Margin="133,91,0,0" VerticalAlignment="Top" Width="270"/>
+        <Label Name="selectedCertificateExpiry" Content="" Grid.Column="3" HorizontalAlignment="Left" Margin="133,128,0,0" VerticalAlignment="Top" Width="270"/>
+        <Label Name="selectedCertificateIssuer" Content="" Grid.Column="3" HorizontalAlignment="Left" Margin="133,109,0,0" VerticalAlignment="Top" Width="270"/>
         <Label Content="Choose Certificate" Grid.Column="2" HorizontalAlignment="Left" Margin="2,71,0,0" VerticalAlignment="Top"/>
-        <Label Content="Choose File to Sign" Grid.Column="2" HorizontalAlignment="Left" Margin="2,183,0,0" VerticalAlignment="Top"/>
-        <Label Content="" Name="selectedFile" Grid.Column="3" HorizontalAlignment="Left" Margin="48,211,0,0" VerticalAlignment="Top" Width="294"/>
-        <Label x:Name="selectedCertificateSource_Id" Content="" Grid.Column="3" HorizontalAlignment="Left" Margin="48,147,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="selectedCertificateSource" Content="" Grid.Column="3" HorizontalAlignment="Left" Margin="168,147,0,0" VerticalAlignment="Top" Width="174"/>
+        <Label Content="Choose File to Sign" Grid.Column="2" HorizontalAlignment="Left" Margin="2,214,0,0" VerticalAlignment="Top"/>
+        <Label Content="" Name="selectedFile" Grid.Column="3" HorizontalAlignment="Left" Margin="24,236,0,0" VerticalAlignment="Top" Width="314"/>
+        <Label x:Name="selectedCertificateExt1_Id" Content="" Grid.Column="3" HorizontalAlignment="Left" Margin="24,148,0,0" VerticalAlignment="Top" Width="104"/>
+        <Label x:Name="selectedCertificateExt1" Content="" Grid.Column="3" HorizontalAlignment="Left" Margin="133,148,0,0" VerticalAlignment="Top" Width="270"/>
+        <Label x:Name="selectedCertificateExt2_Id" Content="" Grid.Column="3" HorizontalAlignment="Left" Margin="24,168,0,0" VerticalAlignment="Top" Width="104"/>
+        <Label x:Name="selectedCertificateExt2" Content="" Grid.Column="3" HorizontalAlignment="Left" Margin="133,168,0,0" VerticalAlignment="Top" Width="270"/>
 
     </Grid>
 </Window>

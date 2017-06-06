@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TxGuru-Digital-Signatures", "WpfApp2\TxGuru-Digital-Signatures.csproj", "{EC87104F-E9D9-434F-8DFD-3E668DECC757}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital-Signatures", "WpfApp2\Digital-Signatures.csproj", "{EC87104F-E9D9-434F-8DFD-3E668DECC757}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{EC87104F-E9D9-434F-8DFD-3E668DECC757}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>TxGuruDigitalSignatures</RootNamespace>
-    <AssemblyName>TxGuruDigitalSignatures</AssemblyName>
+    <RootNamespace>DigitalSignatures</RootNamespace>
+    <AssemblyName>DigitalSignatures</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>

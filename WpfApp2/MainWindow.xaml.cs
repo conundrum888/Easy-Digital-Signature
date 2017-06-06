@@ -36,9 +36,6 @@ namespace WpfApp2
             {
                 name = backupName;
             }
-
-            Console.WriteLine(name);
-
         }
 
         public override string ToString()
@@ -53,47 +50,53 @@ namespace WpfApp2
         public MainWindow()
         {
             InitializeComponent();
-            X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
-            store.Open(OpenFlags.OpenExistingOnly);
+            try {
+                X509Store userStore = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+                X509Store machineStore = new X509Store(StoreName.My, StoreLocation.LocalMachine);
+                userStore.Open(OpenFlags.OpenExistingOnly);
+                machineStore.Open(OpenFlags.OpenExistingOnly);
 
-            foreach (X509Certificate2 mCert in store.Certificates)
-            {
-                //MessageBox.Show(mCert.Subject);
-                //certificateStore.DataContext
-                if (mCert.HasPrivateKey)
+                foreach (X509Certificate2 mCert in userStore.Certificates)
                 {
-                    try {
-                        //RSACryptoServiceProvider privateKey = mCert.PrivateKey as RSACryptoServiceProvider;
-                        certificateStore.Items.Add(new X509Certificate2_Wrapper(mCert));
-                    }
-                    catch {
-                        Console.WriteLine("this cert had problems, ", mCert.Subject);
+                    if (mCert.HasPrivateKey)
+                    {
+                        try
+                        {
+                            certificateStore.Items.Add(new X509Certificate2_Wrapper(mCert));
+                        }
+                        catch
+                        {
+                        }
                     }
                 }
+                foreach (X509Certificate2 mCert in machineStore.Certificates)
+                {
+                    if (mCert.HasPrivateKey)
+                    {
+                        try
+                        {
+                            certificateStore.Items.Add(new X509Certificate2_Wrapper(mCert));
+                        }
+                        catch
+                        {
+                        }
+                    }
+                }
+
+                userStore.Close();
+                machineStore.Close();
             }
-            store.Close();
-
-
-
-
-
+            catch {
+                MessageBox.Show("Could not access the certificate store");
+            }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void chooseFile(object sender, RoutedEventArgs e)
         {
-            // Create OpenFileDialog 
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-
-
-
-            // Display OpenFileDialog by calling ShowDialog method 
             Nullable<bool> result = dlg.ShowDialog();
-
-
-            // Get the selected file name and display in a TextBox 
             if (result == true)
             {
-                // Open document 
                 selectedFile.Content = dlg.FileName;
 
                 if (saveCertificateButton.IsEnabled)
@@ -101,13 +104,11 @@ namespace WpfApp2
                     saveSignatureButton.IsEnabled = true;
                 }
 
-
             }
         }
 
         private void CertificateChanged(object sender, RoutedEventArgs e)
         {
-            //MessageBox.Show("changes");
             var certificate = ((X509Certificate2_Wrapper)certificateStore.SelectedItem).certificate;
             var str = certificate.Subject;
             string[] separators1 = {","};
@@ -115,18 +116,28 @@ namespace WpfApp2
             string[] subjectAttributes = str.Split(separators1, StringSplitOptions.RemoveEmptyEntries);
 
             selectedCertificateCommonName.Content = "";
-            selectedCertificateSource_Id.Content = "";
-            selectedCertificateSource.Content = "";
+            selectedCertificateExt1_Id.Content = "";
+            selectedCertificateExt1.Content = "";
+            selectedCertificateExt2_Id.Content = "";
+            selectedCertificateExt2.Content = "";
+            selectedCertificateCommonName.ToolTip = null;
+            selectedCertificateExt1_Id.ToolTip = null;
+            selectedCertificateExt1.ToolTip = null;
+            selectedCertificateExt2_Id.ToolTip = null;
+            selectedCertificateExt2.ToolTip = null;
+
+
+
             string backupLabel = "";
             string backupValue = "";
-
             foreach (string elem in subjectAttributes)
             {
                 string[] aa = elem.Split(separators2, StringSplitOptions.RemoveEmptyEntries);
-                if (aa[0]=="CN")
+                if (aa[0]!=null && aa[0]=="CN")
                 {
                     IDLabel.Content = "Common Name:";
                     selectedCertificateCommonName.Content = aa[1];
+                    selectedCertificateCommonName.ToolTip = aa[1];
                 }
                 if (backupValue == "")
                 {
@@ -139,11 +150,16 @@ namespace WpfApp2
             {
                 IDLabel.Content = backupLabel=="E"?"Email:": backupLabel + ":";
                 selectedCertificateCommonName.Content = backupValue;
+                selectedCertificateCommonName.ToolTip = backupValue;
+
             }
 
             selectedCertificateIssuer.Content = certificate.Issuer;
+            selectedCertificateIssuer.ToolTip = certificate.Issuer;
+            selectedCertificateIssuer_Id.Content = "Issuer:";
+            
             selectedCertificateExpiry.Content = certificate.NotAfter;
-
+            selectedCertificateExpiry_Id.Content = "Expiry:";
             try
             {
                 RSACryptoServiceProvider privateKey = certificate.PrivateKey as RSACryptoServiceProvider;
@@ -151,8 +167,9 @@ namespace WpfApp2
                 {
                     if (privateKey.CspKeyContainerInfo.HardwareDevice)
                     {
-                        selectedCertificateSource_Id.Content = "Key Source:";
-                        selectedCertificateSource.Content = "SmartCard";
+                        selectedCertificateExt1_Id.Content = "Key Source:";
+                        selectedCertificateExt1.Content = "SmartCard";
+                        selectedCertificateExt1.ToolTip = "SmartCard";
 
                     }
                 }
@@ -162,75 +179,102 @@ namespace WpfApp2
             {
 
             }
+            try
+            {
+                foreach (X509Extension extension in certificate.Extensions)
+                {
+                    if (extension.Oid.FriendlyName == "Key Usage")
+                    {
+                        X509KeyUsageExtension ext = (X509KeyUsageExtension)extension;
+                        //MessageBox.Show(certificate.Subject+": "+ext.KeyUsages.ToString());
+                        //Console.WriteLine(ext.KeyUsages);
+                        if ((string)selectedCertificateExt1.Content!="") {
+                            selectedCertificateExt2_Id.Content = "Key Usages:";
+                            selectedCertificateExt2.Content = ext.KeyUsages.ToString();
+                            selectedCertificateExt2.ToolTip = ext.KeyUsages.ToString();
 
+                        }
+                        else
+                        {
+                            selectedCertificateExt1_Id.Content = "Key Usages:";
+                            selectedCertificateExt1.Content = ext.KeyUsages.ToString();
+                            selectedCertificateExt1.ToolTip = ext.KeyUsages.ToString();
+                        }
+                    }
+                }
+            }
+            catch
+            {
 
+            }
 
             saveCertificateButton.IsEnabled = true;
-
-
-
-
             if (selectedFile.Content!=null && selectedFile.Content.ToString()!="")
             {
                 saveSignatureButton.IsEnabled = true;
             }
-
-
         }
 
-            private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void saveSignature(object sender, RoutedEventArgs e)
         {
-
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            var certificate = ((X509Certificate2_Wrapper) certificateStore.SelectedItem).certificate;
-            RSACryptoServiceProvider privateKey = certificate.PrivateKey as RSACryptoServiceProvider;
-            RSACryptoServiceProvider reconstructedKey = new RSACryptoServiceProvider();
             try
             {
-                reconstructedKey.FromXmlString(certificate.PrivateKey.ToXmlString(true));
+                var certificate = ((X509Certificate2_Wrapper)certificateStore.SelectedItem).certificate;
+                RSACryptoServiceProvider privateKey = certificate.PrivateKey as RSACryptoServiceProvider;
+                RSACryptoServiceProvider reconstructedKey = new RSACryptoServiceProvider();
+                try
+                {
+                    reconstructedKey.FromXmlString(certificate.PrivateKey.ToXmlString(true));
+                }
+                catch
+                {
+                    reconstructedKey = privateKey;
+                }
+                RSACryptoServiceProvider publicKey = certificate.PublicKey.Key as RSACryptoServiceProvider;
+                var filename = selectedFile.Content.ToString();
+                byte[] buffer = System.IO.File.ReadAllBytes(filename);
+                byte[] signature = reconstructedKey.SignData(buffer, CryptoConfig.MapNameToOID("SHA256"));
+                bool verify = publicKey.VerifyData(buffer, CryptoConfig.MapNameToOID("SHA256"), signature);
+                if (verify)
+                {
+                    System.IO.File.WriteAllBytes(filename + ".sign", signature);
+                    MessageBox.Show("Signed and saved" + filename + ".sign");
+                }
+                else
+                {
+                    MessageBox.Show("Signature failed");
+                }
             }
-            catch {
-                reconstructedKey = privateKey;
-            }
-            RSACryptoServiceProvider publicKey = certificate.PublicKey.Key as RSACryptoServiceProvider;
-            var filename = selectedFile.Content.ToString();
-            byte[] buffer = System.IO.File.ReadAllBytes(filename);
-            byte[] signature = reconstructedKey.SignData(buffer, CryptoConfig.MapNameToOID("SHA256"));
-            bool verify = publicKey.VerifyData(buffer, CryptoConfig.MapNameToOID("SHA256"), signature);
-            if (verify)
+            catch
             {
-                System.IO.File.WriteAllBytes(filename + ".sign", signature);
-                MessageBox.Show("Signed and saved" + filename + ".sign" );
+                MessageBox.Show("Signature failed");
             }
-            else {
-                MessageBox.Show("Could not sign");
-            }
-
 
         }
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private void saveCertificate(object sender, RoutedEventArgs e)
         {
-
-
-            var certificate = ((X509Certificate2_Wrapper)certificateStore.SelectedItem).certificate;
-            string filename = selectedFile.Content.ToString();
-            if (filename == "")
+            try
             {
-                 filename = System.IO.Path.Combine(System.Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%"), "Downloads", certificate.SerialNumber);
-                //filename = certificate.SerialNumber;
+                var certificate = ((X509Certificate2_Wrapper)certificateStore.SelectedItem).certificate;
+                string filename = selectedFile.Content.ToString();
+                if (filename == "")
+                {
+                    filename = System.IO.Path.Combine(System.Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%"), "Downloads", "certificate");
+                }
+
+                StringBuilder builder = new StringBuilder();
+                builder.AppendLine("-----BEGIN CERTIFICATE-----");
+                builder.AppendLine(Convert.ToBase64String(certificate.Export(X509ContentType.Cert), Base64FormattingOptions.InsertLineBreaks));
+                builder.AppendLine("-----END CERTIFICATE-----");
+                System.IO.File.WriteAllText(filename + ".crt", builder.ToString());
+                MessageBox.Show("Saved certificate: " + filename + ".crt");
+            }
+            catch 
+            {
+                MessageBox.Show("Certificate could not be saved");
             }
 
-
-            StringBuilder builder = new StringBuilder();
-            builder.AppendLine("-----BEGIN CERTIFICATE-----");
-            builder.AppendLine(Convert.ToBase64String(certificate.Export(X509ContentType.Cert), Base64FormattingOptions.InsertLineBreaks));
-            builder.AppendLine("-----END CERTIFICATE-----");
-            System.IO.File.WriteAllText(filename + ".crt", builder.ToString());
-            MessageBox.Show("Saved certificate: "+ filename + ".crt");
-
+            
         }
     }
 }
